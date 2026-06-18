@@ -1,0 +1,575 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <title>Four Leisure H5</title>
+  <link rel="stylesheet" href="style.css?v=scene19-qinghuan-2">
+</head>
+<body>
+  <main class="h5-shell" aria-label="Four Leisure H5">
+    <section class="scene scene-home active" id="scene-1" aria-label="home">
+      <img class="home-bg" src="assets/png/home/background.png" alt="">
+      <img class="home-title home-layer" src="assets/svg/home/title.svg" alt="">
+      <img class="home-seal home-layer" src="assets/svg/home/seal.svg" alt="">
+      <img class="home-subtitle home-layer" src="assets/svg/home/subtitle.svg" alt="">
+      <button class="home-enter" type="button" aria-label="enter">
+        <img class="home-enter-art home-layer" src="assets/svg/home/enter-button.svg" alt="">
+      </button>
+      <img class="home-prompt home-layer" src="assets/png/home/click-prompt.png" alt="">
+      <img class="home-tap-motion home-layer" src="assets/svg/home/tap-gesture.svg" alt="">
+    </section>
+
+    <section class="scene scene-2" id="scene-2" aria-label="intro">
+      <img class="scene2-bg" src="assets/png/scene2/background-interactive.png" alt="">
+      <img class="scene2-title scene2-layer" src="assets/png/scene2/title.png" alt="">
+      <img class="scene2-seal scene2-layer" src="assets/svg/scene2/seal.svg" alt="">
+      <img class="scene2-copy scene2-layer" src="assets/png/scene2/copy.png" alt="">
+
+      <div class="scene2-divider scene2-divider-1 scene2-layer"></div>
+      <div class="scene2-divider scene2-divider-2 scene2-layer"></div>
+      <div class="scene2-divider scene2-divider-3 scene2-layer"></div>
+
+      <button class="ritual-card ritual-tea scene2-layer" type="button" data-ritual="tea" aria-label="tea">
+        <span class="ritual-label">&#28857;&#33590;</span>
+        <img class="ritual-art" src="assets/png/scene2/tea.png" alt="">
+      </button>
+      <button class="ritual-card ritual-incense scene2-layer" type="button" data-ritual="incense" aria-label="incense">
+        <span class="ritual-label">&#28954;&#39321;</span>
+        <img class="ritual-art" src="assets/png/scene2/incense.png" alt="">
+      </button>
+      <button class="ritual-card ritual-flower scene2-layer" type="button" data-ritual="flower" aria-label="flower">
+        <span class="ritual-label">&#25554;&#33457;</span>
+        <img class="ritual-art" src="assets/png/scene2/flower.png" alt="">
+      </button>
+      <button class="ritual-card ritual-painting scene2-layer" type="button" data-ritual="painting" aria-label="painting">
+        <span class="ritual-label">&#25346;&#30011;</span>
+        <img class="ritual-art" src="assets/png/scene2/painting.png" alt="">
+      </button>
+
+      <div class="scene2-note" aria-live="polite">
+        <span class="scene2-note-title">&#22235;&#33324;&#38386;&#20107;</span>
+        <span class="scene2-note-text">&#28857;&#36873;&#19968;&#20214;&#38597;&#20107;&#65292;&#26597;&#30475;&#23427;&#30340;&#28165;&#27426;&#24847;&#36259;&#12290;</span>
+      </div>
+
+      <button class="scene2-start scene2-layer" type="button" aria-label="start experience">
+        <img src="assets/png/scene2/start-button.png" alt="">
+      </button>
+      <img class="scene2-tap scene2-layer" src="assets/svg/scene2/tap-gesture.svg" alt="">
+    </section>
+
+    <section class="scene scene-3" id="scene-3" aria-label="ritual selection">
+      <img class="scene3-bg" src="assets/png/scene3/background.png" alt="">
+
+      <div class="scene3-carousel scene3-layer" aria-label="ritual carousel">
+        <article class="scene3-card" data-index="0" data-type="tea">
+          <img class="scene3-card-art" src="assets/png/scene3/card-tea.png" alt="">
+          <img class="scene3-card-stamp" src="assets/scene3/stamp-complete-new.png" alt="">
+          <button class="scene3-card-action" type="button" data-target-scene="4" aria-label="enter tea">
+            <img src="assets/svg/scene3/button-tea.svg" alt="">
+          </button>
+        </article>
+        <article class="scene3-card" data-index="1" data-type="incense">
+          <img class="scene3-card-art" src="assets/png/scene3/card-incense.png" alt="">
+          <img class="scene3-card-stamp" src="assets/scene3/stamp-complete-new.png" alt="">
+          <button class="scene3-card-action" type="button" data-target-scene="7" aria-label="enter incense">
+            <img src="assets/svg/scene3/button-incense.svg" alt="">
+          </button>
+        </article>
+        <article class="scene3-card" data-index="2" data-type="flower">
+          <img class="scene3-card-art" src="assets/png/scene3/card-flower.png" alt="">
+          <img class="scene3-card-stamp" src="assets/scene3/stamp-complete-new.png" alt="">
+          <button class="scene3-card-action" type="button" data-target-scene="10" aria-label="enter flower">
+            <img src="assets/svg/scene3/button-flower.svg" alt="">
+          </button>
+        </article>
+        <article class="scene3-card" data-index="3" data-type="painting">
+          <img class="scene3-card-art" src="assets/png/scene3/card-painting.png" alt="">
+          <img class="scene3-card-stamp" src="assets/scene3/stamp-complete-new.png" alt="">
+          <button class="scene3-card-action" type="button" data-target-scene="13" aria-label="enter painting">
+            <img src="assets/svg/scene3/button-painting.svg" alt="">
+          </button>
+        </article>
+      </div>
+
+      <div class="scene3-dots scene3-layer" aria-hidden="true">
+        <span class="scene3-dot is-active"></span>
+        <span class="scene3-dot"></span>
+        <span class="scene3-dot"></span>
+        <span class="scene3-dot"></span>
+      </div>
+
+      <div class="scene3-seals scene3-layer" aria-label="ritual seals">
+        <button class="scene3-seal is-active" type="button" data-index="0" data-type="tea" aria-label="tea">
+          <img class="scene3-seal-normal" src="assets/svg/scene3/seal-tea.svg" alt="">
+          <img class="scene3-seal-done" src="assets/svg/scene3/seal-tea-done.svg" alt="">
+        </button>
+        <button class="scene3-seal" type="button" data-index="1" data-type="incense" aria-label="incense">
+          <img class="scene3-seal-normal" src="assets/svg/scene3/seal-incense.svg" alt="">
+          <img class="scene3-seal-done" src="assets/svg/scene3/seal-incense-done.svg" alt="">
+        </button>
+        <button class="scene3-seal" type="button" data-index="2" data-type="flower" aria-label="flower">
+          <img class="scene3-seal-normal" src="assets/svg/scene3/seal-flower.svg" alt="">
+          <img class="scene3-seal-done" src="assets/svg/scene3/seal-flower-done.svg" alt="">
+        </button>
+        <button class="scene3-seal" type="button" data-index="3" data-type="painting" aria-label="painting">
+          <img class="scene3-seal-normal" src="assets/svg/scene3/seal-painting.svg" alt="">
+          <img class="scene3-seal-done" src="assets/svg/scene3/seal-painting-done.svg" alt="">
+        </button>
+      </div>
+
+      <button class="scene3-qinghuan" type="button" disabled aria-label="generate qinghuan sign">
+        <img src="assets/scene3/generate-qinghuan-button.png" alt="">
+      </button>
+
+      <img class="scene3-swipe-hand scene3-layer" src="assets/svg/scene2/tap-gesture.svg" alt="">
+    </section>
+
+    <section class="scene scene-4" id="scene-4" aria-label="tea intro">
+      <img class="scene4-bg" src="assets/png/scene4/background.png" alt="">
+      <img class="scene4-title scene4-layer" src="assets/svg/scene4/title.svg" alt="">
+      <img class="scene4-copy scene4-layer" src="assets/svg/scene4/copy.svg" alt="">
+      <button class="scene4-start scene4-layer" type="button" aria-label="start whisking">
+        <img src="assets/svg/scene4/start-whisk.svg" alt="">
+      </button>
+    </section>
+
+    <section class="scene scene-5" id="scene-5" aria-label="tea whisking">
+      <img class="scene5-bg" src="assets/png/scene5/background.png" alt="">
+      <div class="scene5-title scene5-layer" aria-live="polite">
+        <span>&#22312;&#33590;&#27748;&#19978;&#24555;&#36895;&#28369;&#21160;&#65292;</span>
+        <span>&#20987;&#25282;&#20986;&#27748;&#33457;</span>
+      </div>
+      <img class="scene5-seal scene5-layer" src="assets/svg/scene5/seal.svg" alt="">
+
+      <div class="scene5-cup-zone scene5-layer" aria-label="whisk tea area">
+        <img class="scene5-cup-shadow" src="assets/svg/scene5/cup-shadow.svg" alt="">
+        <img class="scene5-cup scene5-cup-0" src="assets/svg/scene5/tea-cup.svg" alt="">
+        <img class="scene5-cup scene5-cup-50" src="assets/svg/scene5/tea-cup-50.svg" alt="">
+        <img class="scene5-cup scene5-cup-100" src="assets/svg/scene5/tea-cup-100.svg" alt="">
+        <div class="scene5-finish-glow" aria-hidden="true"></div>
+        <div class="scene5-cup-hit" role="slider" aria-label="tea foam progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"></div>
+      </div>
+
+      <div class="scene5-progress-readout scene5-layer" aria-live="polite">
+        <span>&#27748;&#33457;&#36827;&#24230;&#65306;</span><strong>0%</strong>
+      </div>
+      <div class="scene5-progress-track scene5-layer" aria-hidden="true">
+        <div class="scene5-progress-fill"></div>
+      </div>
+      <button class="scene5-result-button scene5-layer" type="button" aria-label="view tea foam">
+        <img src="assets/svg/scene5/view-foam-button.svg" alt="">
+      </button>
+    </section>
+
+    <section class="scene scene-6" id="scene-6" aria-label="tea art free drawing">
+      <img class="scene6-bg" src="assets/png/scene6/background-pattern.png" alt="">
+      <img class="scene6-title-image scene6-layer" src="assets/svg/scene6/title-tea-enter.svg" alt="茶，点茶入静">
+      <img class="scene6-seal scene6-layer" src="assets/png/scene6/seal-tea-art.png" alt="">
+
+      <div class="scene6-bowl-stage scene6-layer" aria-label="draw freely on tea foam">
+        <img class="scene6-bowl" src="assets/png/scene6/tea-bowl-with-foam.png" alt="">
+        <canvas class="scene6-draw-canvas" aria-label="tea art drawing canvas"></canvas>
+        <div class="scene6-bowl-shine" aria-hidden="true"></div>
+      </div>
+
+      <div class="scene6-actions scene6-layer">
+        <button class="scene6-action scene6-repaint" type="button">
+          <img src="assets/png/scene6/button-repaint.png" alt="">
+          <span>重绘</span>
+        </button>
+        <button class="scene6-action scene6-done" type="button" disabled>
+          <img src="assets/png/scene6/button-done.png" alt="">
+          <span>画好了</span>
+        </button>
+      </div>
+
+      <div class="scene6-reference-title scene6-layer">参考图案：</div>
+      <div class="scene6-reference-grid scene6-layer" aria-label="inspiration patterns">
+        <button class="scene6-card is-active" type="button" data-pattern="bamboo">
+          <img src="assets/png/scene6/card-bamboo.png" alt="">
+          <span>竹叶</span>
+        </button>
+        <button class="scene6-card" type="button" data-pattern="lotus">
+          <img src="assets/png/scene6/card-lotus.png" alt="">
+          <span>荷花</span>
+        </button>
+        <button class="scene6-card" type="button" data-pattern="bird">
+          <img src="assets/png/scene6/card-bird.png" alt="">
+          <span>飞鸟</span>
+        </button>
+        <button class="scene6-card" type="button" data-pattern="butterfly">
+          <img src="assets/png/scene6/card-butterfly.png" alt="">
+          <span>蝴蝶</span>
+        </button>
+      </div>
+      <div class="scene6-tip scene6-layer" aria-live="polite">提示：可以试着画一枝竹影，也可以自由发挥</div>
+    </section>
+
+    <section class="scene scene-7" id="scene-7" aria-label="incense intro">
+      <img class="scene7-bg" src="assets/png/scene7/background.png" alt="">
+      <img class="scene7-title scene7-layer" src="assets/svg/scene7/title.svg" alt="">
+      <img class="scene7-seal scene7-layer" src="assets/svg/scene7/seal.svg" alt="">
+      <img class="scene7-copy scene7-layer" src="assets/svg/scene7/copy.svg" alt="">
+      <button class="scene7-start scene7-layer" type="button" aria-label="start incense">
+        <img src="assets/svg/scene7/start-incense.svg" alt="">
+      </button>
+    </section>
+
+    <section class="scene scene-8" id="scene-8" aria-label="incense interaction">
+      <img class="scene8-bg" src="assets/png/scene8/background-clean.png?v=20260617a" alt="">
+      <div class="scene8-title scene8-layer" aria-live="polite">&#38271;&#25353;&#39321;&#22836;&#65292;&#24453;&#28895;&#27668;&#21319;&#36215;</div>
+
+      <div class="scene8-burner-stage scene8-layer">
+        <div class="scene8-smoke-field" aria-hidden="true">
+          <svg class="scene8-smoke-lines" viewBox="0 0 180 260" focusable="false">
+            <path d="M90 252 C50 206 125 178 86 134 C52 96 120 74 86 20" />
+            <path d="M82 250 C116 204 54 176 92 128 C130 82 70 62 110 12" />
+            <path d="M98 254 C132 210 86 188 120 146 C156 100 92 74 134 34" />
+            <path d="M74 246 C38 210 84 184 66 150 C44 110 78 82 58 44" />
+            <path d="M92 256 C74 218 134 198 112 158 C84 108 150 86 128 28" />
+            <path d="M84 258 C120 228 70 198 102 158 C138 112 46 88 78 30" />
+            <path d="M102 258 C148 224 104 198 144 156 C174 124 126 92 154 44" />
+            <path d="M88 258 C56 226 112 202 84 166 C54 126 122 96 96 38" />
+            <path d="M94 258 C128 232 88 206 124 166 C164 122 104 94 142 42" />
+            <path d="M90 258 C96 226 94 204 108 170 C122 132 82 102 116 48" />
+          </svg>
+          <i class="scene8-smoke scene8-smoke-a"></i>
+          <i class="scene8-smoke scene8-smoke-b"></i>
+          <i class="scene8-smoke scene8-smoke-c"></i>
+          <i class="scene8-smoke scene8-smoke-d"></i>
+          <i class="scene8-smoke scene8-smoke-e"></i>
+          <i class="scene8-smoke scene8-smoke-f"></i>
+          <i class="scene8-smoke scene8-smoke-g"></i>
+          <i class="scene8-smoke scene8-smoke-h"></i>
+          <i class="scene8-smoke scene8-smoke-i"></i>
+          <i class="scene8-smoke scene8-smoke-j"></i>
+        </div>
+        <img class="scene8-burner" src="assets/svg/scene8/incense-burner-transparent.svg" alt="">
+        <button class="scene8-incense-hotspot" type="button" aria-label="hold incense tip"></button>
+      </div>
+
+      <img class="scene8-gesture scene8-layer" src="assets/svg/scene8/press-gesture.svg" alt="">
+      <div class="scene8-readout-mask scene8-layer" aria-hidden="true"></div>
+      <div class="scene8-progress-readout scene8-layer" aria-live="polite">
+        <span>&#20957;&#31070;&#36827;&#24230;&#65306;</span><strong>0%</strong>
+      </div>
+      <div class="scene8-progress-track scene8-layer" aria-hidden="true">
+        <div class="scene8-progress-fill"></div>
+      </div>
+      <button class="scene8-result-button scene8-layer" type="button" disabled aria-label="view incense smoke">
+        <span>&#35266;&#28895;&#20837;&#22659;</span>
+      </button>
+    </section>
+
+    <section class="scene scene-9" id="scene-9" aria-label="incense result">
+      <img class="scene9-bg" src="assets/png/scene10/background-flower-clean.png" alt="">
+      <div class="scene9-divider-cleaner" aria-hidden="true"></div>
+      <img class="scene9-title scene9-layer" src="assets/svg/scene9/title.svg?v=4" alt="">
+      <img class="scene9-vertical-seal scene9-layer" src="assets/svg/scene9/vertical-seal.svg" alt="">
+      <img class="scene9-divider scene9-layer" src="assets/svg/scene9/divider.svg" alt="">
+      <img class="scene9-subtitle scene9-layer" src="assets/png/scene9/subtitle.png?v=1" alt="">
+      <div class="scene9-smoke-field scene9-layer" aria-hidden="true">
+        <svg class="scene8-smoke-lines" viewBox="0 0 180 260" focusable="false">
+          <path d="M90 252 C50 206 125 178 86 134 C52 96 120 74 86 20" />
+          <path d="M82 250 C116 204 54 176 92 128 C130 82 70 62 110 12" />
+          <path d="M98 254 C132 210 86 188 120 146 C156 100 92 74 134 34" />
+          <path d="M74 246 C38 210 84 184 66 150 C44 110 78 82 58 44" />
+          <path d="M92 256 C74 218 134 198 112 158 C84 108 150 86 128 28" />
+          <path d="M84 258 C120 228 70 198 102 158 C138 112 46 88 78 30" />
+          <path d="M102 258 C148 224 104 198 144 156 C174 124 126 92 154 44" />
+          <path d="M88 258 C56 226 112 202 84 166 C54 126 122 96 96 38" />
+          <path d="M94 258 C128 232 88 206 124 166 C164 122 104 94 142 42" />
+          <path d="M90 258 C96 226 94 204 108 170 C122 132 82 102 116 48" />
+        </svg>
+        <i class="scene8-smoke scene8-smoke-a"></i>
+        <i class="scene8-smoke scene8-smoke-b"></i>
+        <i class="scene8-smoke scene8-smoke-c"></i>
+        <i class="scene8-smoke scene8-smoke-d"></i>
+        <i class="scene8-smoke scene8-smoke-e"></i>
+        <i class="scene8-smoke scene8-smoke-f"></i>
+        <i class="scene8-smoke scene8-smoke-g"></i>
+        <i class="scene8-smoke scene8-smoke-h"></i>
+      </div>
+      <img class="scene9-burner scene9-layer" src="assets/svg/scene8/incense-burner-transparent.svg" alt="">
+      <img class="scene9-copy scene9-layer" src="assets/png/scene9/copy.png?v=1" alt="">
+      <img class="scene9-seal-crop scene9-layer" src="assets/svg/scene9/incense-seal.svg" alt="">
+      <img class="scene9-gain-text scene9-layer" src="assets/png/scene9/gain-text.png?v=1" alt="">
+      <button class="scene9-back scene9-layer" type="button" aria-label="return to four arts space">
+        <img src="assets/svg/scene9/back-button.svg?v=4" alt="">
+      </button>
+    </section>
+
+    <section class="scene scene-10" id="scene-10" aria-label="flower arrangement intro">
+      <img class="scene10-bg" src="assets/png/scene10/background-flower-no-divider.png" alt="">
+      <img class="scene10-title-art scene10-layer" src="assets/png/scene10/title-flower-intro.png" alt="">
+      <img class="scene10-seal scene10-layer" src="assets/png/scene10/seal-four-idle.png" alt="">
+      <img class="scene10-divider scene10-layer" src="assets/png/scene10/divider-top.png" alt="">
+
+      <div class="scene10-copy scene10-layer">
+        <p>&#23435;&#20154;&#25554;&#33457;&#65292;</p>
+        <p>&#19981;&#26159;&#22534;&#21472;&#65292;&#32780;&#26159;&#33258;&#28982;&#29983;&#36259;&#12290;</p>
+        <p>&#19968;&#26525;&#20837;&#29942;&#65292;</p>
+        <p>&#20415;&#26202;&#22312;&#26041;&#23544;&#20043;&#38388;<br>&#35265;&#22235;&#26102;&#39118;&#29289;&#12290;</p>
+      </div>
+
+      <div class="scene10-table-wrap scene10-layer" aria-hidden="true">
+        <img class="scene10-table" src="assets/png/scene10/table-wood.png" alt="">
+      </div>
+      <div class="scene10-vase-wrap scene10-layer" aria-hidden="true">
+        <img class="scene10-vase" src="assets/svg/scene10/vase-celadon.svg" alt="">
+      </div>
+
+      <div class="scene10-branch-wrap scene10-branch-plum scene10-layer" aria-hidden="true">
+        <img class="scene10-branch" src="assets/png/scene10/branch-plum.png" alt="">
+      </div>
+      <div class="scene10-branch-wrap scene10-branch-bamboo scene10-layer" aria-hidden="true">
+        <img class="scene10-branch" src="assets/png/scene10/branch-bamboo.png" alt="">
+      </div>
+      <div class="scene10-branch-wrap scene10-branch-chrys scene10-layer" aria-hidden="true">
+        <img class="scene10-branch" src="assets/png/scene10/branch-chrysanthemum.png" alt="">
+      </div>
+      <div class="scene10-tag scene10-tag-plum scene10-layer" aria-hidden="true">&#26757;&#33457;&#26525;</div>
+      <div class="scene10-tag scene10-tag-bamboo scene10-layer" aria-hidden="true">&#31481;&#21494;&#26525;</div>
+      <div class="scene10-tag scene10-tag-chrys scene10-layer" aria-hidden="true">&#33738;&#33457;&#26525;</div>
+
+      <button class="scene10-start scene10-layer" type="button" aria-label="start flower arrangement">
+        <span class="scene10-start-feedback" aria-hidden="true"></span>
+        <img class="scene10-start-art" src="assets/png/scene10/start-button.png" alt="">
+      </button>
+      <img class="scene10-prompt scene10-layer" src="assets/png/scene10/prompt-drag.png" alt="">
+    </section>
+
+    <section class="scene scene-11" id="scene-11" aria-label="flower arrangement interaction">
+      <img class="scene11-bg" src="assets/jpg/scene11/background.jpg" alt="">
+      <img class="scene11-title scene11-layer" src="assets/svg/scene11/title-drag-3.svg" alt="">
+      <img class="scene11-divider scene11-layer" src="assets/svg/scene11/divider.svg" alt="">
+
+      <div class="scene11-arrangement scene11-layer" aria-hidden="true">
+        <div class="scene11-inserted-layer" aria-hidden="true"></div>
+        <img class="scene11-table" src="assets/svg/scene11/table.svg" alt="">
+        <img class="scene11-vase" src="assets/svg/scene11/vase.svg" alt="">
+        <div class="scene11-vase-front-mask" aria-hidden="true"></div>
+        <div class="scene11-stem-holder" aria-hidden="true"></div>
+        <div class="scene11-vase-mouth" aria-hidden="true"></div>
+        <div class="scene11-complete-glow" aria-hidden="true"></div>
+      </div>
+
+      <div class="scene11-readout scene11-layer" aria-live="polite">
+        <span>&#24050;&#25554;&#20837;&#65306;</span><strong>0 / 3</strong>
+      </div>
+      <img class="scene11-hand scene11-layer" src="assets/svg/scene11/drag-guide.svg" alt="">
+      <div class="scene11-prompt scene11-layer" aria-hidden="true">&#25302;&#25341;&#33457;&#26525;&#20837;&#29942;</div>
+
+      <div class="scene11-tray scene11-layer" aria-label="flower materials">
+        <button class="scene11-card" type="button" data-flower="plum" aria-label="plum">
+          <span class="scene11-card-bg"></span>
+          <img class="scene11-card-frame" src="assets/svg/scene11/card-plum.svg" alt="">
+          <img class="scene11-card-branch" src="assets/png/scene11/flower-plum.png" alt="">
+          <b>&#26757;</b>
+        </button>
+        <button class="scene11-card" type="button" data-flower="orchid" aria-label="orchid">
+          <span class="scene11-card-bg"></span>
+          <img class="scene11-card-frame" src="assets/svg/scene11/card-orchid.svg" alt="">
+          <img class="scene11-card-branch" src="assets/png/scene11/flower-orchid.png" alt="">
+          <b>&#20848;</b>
+        </button>
+        <button class="scene11-card" type="button" data-flower="bamboo" aria-label="bamboo">
+          <span class="scene11-card-bg"></span>
+          <img class="scene11-card-frame" src="assets/svg/scene11/card-bamboo.svg" alt="">
+          <img class="scene11-card-branch" src="assets/png/scene11/flower-bamboo.png" alt="">
+          <b>&#31481;</b>
+        </button>
+        <button class="scene11-card" type="button" data-flower="chrysanthemum" aria-label="chrysanthemum">
+          <span class="scene11-card-bg"></span>
+          <img class="scene11-card-frame" src="assets/svg/scene11/card-chrysanthemum.svg" alt="">
+          <img class="scene11-card-branch" src="assets/png/scene11/flower-chrysanthemum.png" alt="">
+          <b>&#33738;</b>
+        </button>
+        <button class="scene11-card" type="button" data-flower="lotus" aria-label="lotus">
+          <span class="scene11-card-bg"></span>
+          <img class="scene11-card-frame" src="assets/svg/scene11/card-lotus.svg" alt="">
+          <img class="scene11-card-branch" src="assets/png/scene11/flower-lotus.png" alt="">
+          <b>&#33655;</b>
+        </button>
+      </div>
+
+      <button class="scene11-result-button scene11-layer" type="button" disabled aria-label="view flower arrangement">
+        <img class="scene11-result-art" src="assets/png/scene11/view-bottle-button.png" alt="">
+      </button>
+    </section>
+
+    <section class="scene scene-12" id="scene-12" aria-label="flower arrangement result">
+      <img class="scene12-bg" src="assets/png/scene12/background-no-stamp.png" alt="">
+      <div class="scene12-stamp-crop scene12-layer" aria-hidden="true">
+        <img src="assets/svg/scene12/flower-stamp.svg" alt="">
+      </div>
+      <button class="scene12-back scene12-layer" type="button" aria-label="back to ritual selection">
+        <img src="assets/svg/scene12/back-button.svg" alt="">
+      </button>
+    </section>
+
+    <section class="scene scene-13" id="scene-13" aria-label="painting intro">
+      <img class="scene13-bg" src="assets/png/scene13/background.png" alt="">
+      <img class="scene13-title scene13-layer" src="assets/svg/scene13/title.svg" alt="">
+      <img class="scene13-seal scene13-layer" src="assets/svg/scene13/seal.svg" alt="">
+      <img class="scene13-divider scene13-layer" src="assets/png/scene13/painting-divider.png" alt="">
+      <img class="scene13-copy scene13-layer" src="assets/svg/scene13/copy.svg" alt="">
+      <img class="scene13-scroll scene13-layer" src="assets/svg/scene13/scroll.svg" alt="">
+      <button class="scene13-start scene13-layer" type="button" aria-label="start painting">
+        <img src="assets/svg/scene13/start-button.svg" alt="">
+      </button>
+    </section>
+
+    <section class="scene scene-14" id="scene-14" aria-label="painting scroll interaction">
+      <img class="scene14-bg" src="assets/png/scene14/background.png" alt="">
+      <div class="scene14-title scene14-layer" aria-label="向下滑动，轻展画轴">&#21521;&#19979;&#28369;&#21160;&#65292;&#36731;&#23637;&#30011;&#36724;</div>
+      <img class="scene14-divider scene14-layer" src="assets/png/scene14/painting-divider.png" alt="">
+
+      <div class="scene14-scroll-stage scene14-layer" aria-label="drag down to unfurl the scroll">
+        <div class="scene14-scroll-viewport" aria-hidden="true">
+          <div class="scene14-scroll-content">
+            <img class="scene14-scroll-art" src="assets/svg/scene14/blank-scroll.svg" alt="">
+            <div class="scene14-painting-window">
+              <img class="scene14-painting-art" src="assets/png/scene14/painting-ink.png" alt="">
+            </div>
+          </div>
+        </div>
+        <button class="scene14-drag-zone" type="button" aria-label="drag down to unfold painting scroll"></button>
+      </div>
+
+      <div class="scene14-gesture scene14-layer" aria-hidden="true">
+        <span class="scene14-gesture-dots"></span>
+        <img class="scene14-gesture-hand" src="assets/png/scene14/gesture-hand.png" alt="">
+        <span class="scene14-gesture-arrow"></span>
+      </div>
+
+      <div class="scene14-progress-text scene14-layer" aria-live="polite">
+        <span>&#23637;&#24320;&#36827;&#24230;&#65306;</span><strong>0%</strong>
+      </div>
+      <div class="scene14-progress scene14-layer" aria-hidden="true">
+        <div class="scene14-progress-fill"></div>
+      </div>
+
+      <button class="scene14-start scene14-layer" type="button" disabled aria-label="enter painting search">
+        <img src="assets/svg/scene14/enter-painting.svg" alt="">
+      </button>
+    </section>
+
+    <section class="scene scene-15" id="scene-15" aria-label="painting search game">
+      <img class="scene15-bg" src="assets/png/scene15/background.png" alt="">
+      <img class="scene15-title scene15-layer" src="assets/svg/scene15/title.svg" alt="">
+      <img class="scene15-divider scene15-layer" src="assets/png/scene15/painting-divider.png" alt="">
+
+      <div class="scene15-scroll scene15-layer" aria-label="painting with hidden scenery">
+        <img class="scene15-scroll-art" src="assets/png/scene15/scroll-painting.png" alt="">
+        <button class="scene15-hotspot scene15-hotspot-mountain" type="button" data-target="mountain" aria-label="find distant mountain">
+          <span class="scene15-target-ring"></span>
+          <span class="scene15-target-check"></span>
+        </button>
+        <button class="scene15-hotspot scene15-hotspot-boat" type="button" data-target="boat" aria-label="find boat">
+          <span class="scene15-target-ring"></span>
+          <span class="scene15-target-check"></span>
+        </button>
+        <button class="scene15-hotspot scene15-hotspot-pavilion" type="button" data-target="pavilion" aria-label="find pavilion">
+          <span class="scene15-target-ring"></span>
+          <span class="scene15-target-check"></span>
+        </button>
+      </div>
+
+      <div class="scene15-task-list scene15-layer" aria-label="painting search targets">
+        <button class="scene15-task" type="button" data-target="mountain" aria-label="distant mountain">
+          <span>&#36828;<br>&#23665;</span><i></i>
+        </button>
+        <button class="scene15-task" type="button" data-target="boat" aria-label="boat">
+          <span>&#23567;<br>&#33311;</span><i></i>
+        </button>
+        <button class="scene15-task" type="button" data-target="pavilion" aria-label="pavilion">
+          <span>&#20141;<br>&#21488;</span><i></i>
+        </button>
+      </div>
+
+      <div class="scene15-found scene15-layer" aria-live="polite">
+        <span class="scene15-found-line"></span>
+        <span class="scene15-found-label">&#24050;&#25214;&#21040;&#65306;</span>
+        <span class="scene15-found-count"><b>0</b> / 3</span>
+        <span class="scene15-found-line"></span>
+      </div>
+
+      <div class="scene15-progress scene15-layer" aria-hidden="true">
+        <img src="assets/svg/scene15/progress-panel.svg" alt="">
+        <span data-index="0"></span>
+        <span data-index="1"></span>
+        <span data-index="2"></span>
+      </div>
+
+      <button class="scene15-collect scene15-layer" type="button" disabled aria-label="collect painting meaning">
+        <img class="scene15-collect-disabled" src="assets/svg/scene15/collect-button-disabled.svg" alt="">
+        <img class="scene15-collect-ready" src="assets/svg/scene15/collect-button-ready.svg" alt="">
+      </button>
+    </section>
+
+    <section class="scene scene-16" id="scene-16" aria-label="tea art sharing result">
+      <img class="scene16-bg" src="assets/png/scene16/background-tea-finish.png" alt="">
+      <img class="scene16-title-image scene16-layer" src="assets/png/scene16/title-tea-finish.png" alt="茶，清欢初成">
+      <img class="scene16-subtitle-image scene16-layer" src="assets/png/scene16/subtitle-text.png" alt="盖茶汤，绘就千年风雅。">
+      <img class="scene16-seal scene16-layer" src="assets/png/scene16/seal-tea-art.png" alt="">
+
+      <div class="scene16-bowl-stage scene16-layer" aria-label="your tea art result">
+        <img class="scene16-bowl" src="assets/png/scene16/tea-bowl-with-foam.png" alt="">
+        <img class="scene16-art-overlay" alt="">
+        <div class="scene16-bowl-shine" aria-hidden="true"></div>
+      </div>
+
+      <img class="scene16-still-life scene16-layer" src="assets/png/scene16/tea-finish-still-life.png" alt="">
+      <div class="scene16-share-note scene16-layer">这是你亲手绘出的茶百戏图案</div>
+      <button class="scene16-next scene16-layer" type="button">
+        <img src="assets/png/scene16/button-next.png" alt="">
+        <span>获取茶印</span>
+      </button>
+    </section>
+
+    <section class="scene scene-17" id="scene-17" aria-label="tea seal reward">
+      <img class="scene17-bg" src="assets/png/scene17/background.png" alt="">
+      <img class="scene17-title scene17-layer" src="assets/png/scene17/title-tea-done.png" alt="茶已成花">
+      <img class="scene17-seal scene17-layer" src="assets/png/scene17/seal-vertical.png" alt="">
+      <img class="scene17-divider scene17-layer" src="assets/png/scene17/divider.png" alt="">
+      <img class="scene17-copy scene17-layer" src="assets/png/scene17/copy-text.png" alt="你的汤花细密如雪，已得“雪乳”之境。宋人点茶，重在击拂，也重在由动入静。">
+      <img class="scene17-tea-stamp scene17-layer" src="assets/png/scene17/tea-stamp.png" alt="茶印">
+      <img class="scene17-gain-text scene17-layer" src="assets/png/scene17/gain-text.png" alt="获得「茶」印">
+      <button class="scene17-back scene17-layer" type="button">
+        <img src="assets/png/scene17/button-return.png" alt="">
+        <span>返回四雅空间</span>
+      </button>
+    </section>
+
+    <section class="scene scene-18" id="scene-18" aria-label="painting seal reward">
+      <img class="scene18-bg" src="assets/jpg/scene18/background.jpg" alt="">
+      <img class="scene18-title scene18-layer" src="assets/png/scene18/title.png" alt="画已成境">
+      <img class="scene18-divider scene18-layer" src="assets/png/scene18/painting-divider.png" alt="">
+      <div class="scene18-subtitle scene18-layer">一卷山水，万象入心</div>
+      <img class="scene18-scroll scene18-layer" src="assets/png/scene18/painting-scroll.png" alt="山水画卷">
+      <img class="scene18-poem scene18-layer" src="assets/png/scene18/poem.png" alt="笔墨未语，而山水已自成气象。宋人赏画，重在可游可居，一卷之间，便得一方清远。">
+      <img class="scene18-painting-stamp scene18-layer" src="assets/svg/scene18/painting-stamp.svg" alt="画印">
+      <img class="scene18-gain-text scene18-layer" src="assets/png/scene18/gain-text.png" alt="获得「画」印">
+      <button class="scene18-back scene18-layer" type="button">
+        <img src="assets/svg/scene18/return-button.svg" alt="">
+        <span>返回四雅空间</span>
+      </button>
+    </section>
+
+    <section class="scene scene-19" id="scene-19" aria-label="qinghuan sign result">
+      <img class="scene19-result" src="assets/scene19/qinghuan-0.jpg" alt="">
+      <button class="scene19-action scene19-retry" type="button" aria-label="try again">
+        <img src="assets/scene19/retry-qinghuan.png" alt="">
+      </button>
+      <button class="scene19-action scene19-save" type="button" aria-label="save qinghuan sign">
+        <img src="assets/scene19/save-qinghuan.png" alt="">
+      </button>
+    </section>
+  </main>
+
+  <script src="assets/vendor/gsap.min.js"></script>
+  <script src="script.js?v=scene19-qinghuan-2"></script>
+</body>
+</html>

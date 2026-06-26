@@ -30,6 +30,544 @@ const qinghuanResultImages = [
 
 const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
+const audioState = {
+  ctx: null,
+  masterGain: null,
+  musicGain: null,
+  sfxGain: null,
+  musicFilter: null,
+  unlocked: false,
+  muted: false,
+  bgmStarted: false,
+  bgmTimer: 0,
+  bgmStep: 0,
+  lastSfxAt: Object.create(null),
+  toggleButton: null,
+  toggleStartedAudio: false
+};
+
+const bgmPattern = [
+  { freq: 392.0, duration: 2.4, gain: 0.06 },
+  { freq: 440.0, duration: 1.8, gain: 0.052 },
+  null,
+  { freq: 523.25, duration: 2.2, gain: 0.05 },
+  { freq: 440.0, duration: 1.9, gain: 0.05 },
+  null,
+  { freq: 392.0, duration: 2.6, gain: 0.056 },
+  { freq: 329.63, duration: 2.2, gain: 0.045 },
+  null,
+  { freq: 392.0, duration: 2.4, gain: 0.052 },
+  { freq: 293.66, duration: 2.8, gain: 0.042 },
+  null,
+  { freq: 329.63, duration: 2.2, gain: 0.046 },
+  { freq: 392.0, duration: 2.7, gain: 0.05 },
+  { freq: 440.0, duration: 1.7, gain: 0.044 },
+  null
+];
+
+function getAudioContext() {
+  if (audioState.ctx) return audioState.ctx;
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
+
+  const ctx = new AudioContextClass();
+  const masterGain = ctx.createGain();
+  const musicGain = ctx.createGain();
+  const sfxGain = ctx.createGain();
+  const musicFilter = ctx.createBiquadFilter();
+
+  masterGain.gain.value = audioState.muted ? 0 : 1;
+  musicGain.gain.value = 0.32;
+  sfxGain.gain.value = 0.5;
+  musicFilter.type = "lowpass";
+  musicFilter.frequency.value = 2200;
+  musicFilter.Q.value = 0.7;
+
+  musicGain.connect(musicFilter);
+  musicFilter.connect(masterGain);
+  sfxGain.connect(masterGain);
+  masterGain.connect(ctx.destination);
+
+  audioState.ctx = ctx;
+  audioState.masterGain = masterGain;
+  audioState.musicGain = musicGain;
+  audioState.sfxGain = sfxGain;
+  audioState.musicFilter = musicFilter;
+  return ctx;
+}
+
+function updateAudioToggle() {
+  document.documentElement.dataset.audioUnlocked = String(audioState.unlocked);
+  document.documentElement.dataset.audioMuted = String(audioState.muted);
+  document.documentElement.dataset.audioBgm = String(audioState.bgmStarted);
+  const button = audioState.toggleButton;
+  if (!button) return;
+  button.classList.toggle("is-muted", audioState.muted);
+  button.setAttribute("aria-pressed", String(!audioState.muted));
+  button.setAttribute("aria-label", audioState.muted ? "\u5f00\u542f\u58f0\u97f3" : "\u5173\u95ed\u58f0\u97f3");
+  const mark = button.querySelector(".audio-toggle-mark");
+  if (mark) {
+    mark.textContent = audioState.muted ? "\u9759" : "\u97f3";
+  }
+}
+
+function scheduleTone(freq, options = {}) {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const startTime = options.startTime ?? ctx.currentTime;
+  const duration = options.duration ?? 0.16;
+  const attack = Math.min(options.attack ?? 0.012, duration * 0.45);
+  const volume = options.volume ?? 0.08;
+  const endFreq = options.endFreq ?? freq;
+  const destination = options.destination || audioState.sfxGain;
+  const gainNode = ctx.createGain();
+  const oscillator = ctx.createOscillator();
+
+  oscillator.type = options.type || "sine";
+  oscillator.frequency.setValueAtTime(freq, startTime);
+  if (endFreq !== freq) {
+    oscillator.frequency.exponentialRampToValueAtTime(Math.max(24, endFreq), startTime + duration);
+  }
+  if (options.detune) {
+    oscillator.detune.setValueAtTime(options.detune, startTime);
+  }
+
+  gainNode.gain.setValueAtTime(0.0001, startTime);
+  gainNode.gain.linearRampToValueAtTime(volume, startTime + attack);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+  oscillator.connect(gainNode);
+  gainNode.connect(destination);
+  oscillator.start(startTime);
+  oscillator.stop(startTime + duration + 0.04);
+}
+
+function playFilteredNoise(options = {}) {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const duration = options.duration ?? 0.16;
+  const sampleCount = Math.max(1, Math.floor(ctx.sampleRate * duration));
+  const buffer = ctx.createBuffer(1, sampleCount, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < sampleCount; i += 1) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / sampleCount);
+  }
+
+  const source = ctx.createBufferSource();
+  const filter = ctx.createBiquadFilter();
+  const gainNode = ctx.createGain();
+  const startTime = options.startTime ?? ctx.currentTime;
+
+  source.buffer = buffer;
+  filter.type = options.filterType || "bandpass";
+  filter.frequency.setValueAtTime(options.frequency ?? 1200, startTime);
+  filter.Q.value = options.q ?? 1.2;
+  gainNode.gain.setValueAtTime(options.volume ?? 0.04, startTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+  source.connect(filter);
+  filter.connect(gainNode);
+  gainNode.connect(options.destination || audioState.sfxGain);
+  source.start(startTime);
+  source.stop(startTime + duration + 0.02);
+}
+
+function canPlaySfx(name, interval = 60) {
+  const now = performance.now();
+  const last = audioState.lastSfxAt[name] || 0;
+  if (now - last < interval) return false;
+  audioState.lastSfxAt[name] = now;
+  return true;
+}
+
+function scheduleBgmStep(startTime) {
+  const item = bgmPattern[audioState.bgmStep % bgmPattern.length];
+  audioState.bgmStep += 1;
+  if (!item) return;
+
+  scheduleTone(item.freq, {
+    startTime,
+    duration: item.duration,
+    attack: 0.075,
+    volume: item.gain,
+    type: "sine",
+    destination: audioState.musicGain
+  });
+  scheduleTone(item.freq * 2.01, {
+    startTime: startTime + 0.015,
+    duration: item.duration * 0.62,
+    attack: 0.035,
+    volume: item.gain * 0.24,
+    type: "triangle",
+    destination: audioState.musicGain
+  });
+
+  if (audioState.bgmStep % 8 === 1) {
+    scheduleTone(item.freq / 2, {
+      startTime,
+      duration: 4.2,
+      attack: 0.18,
+      volume: 0.032,
+      type: "sine",
+      destination: audioState.musicGain
+    });
+  }
+}
+
+function startBackgroundMusic() {
+  const ctx = getAudioContext();
+  if (!ctx || audioState.muted || audioState.bgmStarted || ctx.state === "suspended") return;
+
+  audioState.bgmStarted = true;
+  updateAudioToggle();
+  const schedule = () => {
+    if (!audioState.bgmStarted || audioState.muted || ctx.state !== "running") return;
+    scheduleBgmStep(ctx.currentTime + 0.04);
+  };
+
+  schedule();
+  audioState.bgmTimer = window.setInterval(schedule, 680);
+}
+
+function stopBackgroundMusic() {
+  if (audioState.bgmTimer) {
+    window.clearInterval(audioState.bgmTimer);
+    audioState.bgmTimer = 0;
+  }
+  audioState.bgmStarted = false;
+  updateAudioToggle();
+}
+
+function setAudioMuted(muted) {
+  audioState.muted = Boolean(muted);
+  const ctx = audioState.ctx;
+  if (ctx && audioState.masterGain) {
+    const now = ctx.currentTime;
+    audioState.masterGain.gain.cancelScheduledValues(now);
+    audioState.masterGain.gain.setTargetAtTime(audioState.muted ? 0 : 1, now, 0.08);
+  }
+  if (audioState.muted) {
+    stopBackgroundMusic();
+  } else if (audioState.unlocked) {
+    startBackgroundMusic();
+  }
+  updateAudioToggle();
+}
+
+async function unlockAudio() {
+  const ctx = getAudioContext();
+  if (!ctx) return false;
+
+  try {
+    if (ctx.state === "suspended") {
+      await ctx.resume();
+    }
+  } catch (error) {
+    return false;
+  }
+
+  audioState.unlocked = ctx.state !== "suspended";
+  if (audioState.unlocked && !audioState.muted) {
+    startBackgroundMusic();
+  }
+  updateAudioToggle();
+  return audioState.unlocked;
+}
+
+function playSfx(name) {
+  if (!audioState.unlocked || audioState.muted) return;
+  const ctx = getAudioContext();
+  if (!ctx || ctx.state !== "running") return;
+  const now = ctx.currentTime;
+
+  if (name === "tap" && canPlaySfx(name, 45)) {
+    scheduleTone(760, { startTime: now, duration: 0.055, volume: 0.055, type: "triangle", endFreq: 520 });
+    return;
+  }
+
+  if (name === "select" && canPlaySfx(name, 120)) {
+    scheduleTone(523.25, { startTime: now, duration: 0.16, volume: 0.06, type: "sine" });
+    scheduleTone(783.99, { startTime: now + 0.04, duration: 0.22, volume: 0.045, type: "triangle" });
+    return;
+  }
+
+  if (name === "page" && canPlaySfx(name, 240)) {
+    scheduleTone(329.63, { startTime: now, duration: 0.28, volume: 0.035, type: "sine", endFreq: 392 });
+    playFilteredNoise({ startTime: now, duration: 0.2, volume: 0.018, frequency: 800, filterType: "lowpass" });
+    return;
+  }
+
+  if (name === "complete" && canPlaySfx(name, 500)) {
+    [523.25, 659.25, 783.99].forEach((freq, index) => {
+      scheduleTone(freq, { startTime: now + index * 0.085, duration: 0.34, volume: 0.06 - index * 0.008, type: "sine" });
+    });
+    return;
+  }
+
+  if (name === "whisk" && canPlaySfx(name, 95)) {
+    playFilteredNoise({ startTime: now, duration: 0.09, volume: 0.03, frequency: 980, filterType: "bandpass", q: 1.8 });
+    scheduleTone(220, { startTime: now, duration: 0.08, volume: 0.025, type: "triangle", endFreq: 300 });
+    return;
+  }
+
+  if (name === "draw" && canPlaySfx(name, 115)) {
+    playFilteredNoise({ startTime: now, duration: 0.11, volume: 0.024, frequency: 1450, filterType: "bandpass", q: 1.4 });
+    return;
+  }
+
+  if (name === "incense" && canPlaySfx(name, 700)) {
+    playFilteredNoise({ startTime: now, duration: 0.42, volume: 0.032, frequency: 1650, filterType: "highpass", q: 0.6 });
+    scheduleTone(523.25, { startTime: now + 0.04, duration: 0.45, volume: 0.028, type: "sine" });
+    return;
+  }
+
+  if (name === "flower" && canPlaySfx(name, 140)) {
+    scheduleTone(659.25, { startTime: now, duration: 0.12, volume: 0.05, type: "triangle", endFreq: 587.33 });
+    return;
+  }
+
+  if (name === "drop" && canPlaySfx(name, 140)) {
+    scheduleTone(392, { startTime: now, duration: 0.16, volume: 0.05, type: "sine" });
+    scheduleTone(523.25, { startTime: now + 0.035, duration: 0.2, volume: 0.035, type: "triangle" });
+    return;
+  }
+
+  if (name === "scroll" && canPlaySfx(name, 120)) {
+    playFilteredNoise({ startTime: now, duration: 0.13, volume: 0.026, frequency: 720, filterType: "bandpass", q: 1.1 });
+    return;
+  }
+
+  if (name === "found" && canPlaySfx(name, 180)) {
+    scheduleTone(783.99, { startTime: now, duration: 0.14, volume: 0.055, type: "sine" });
+    scheduleTone(1046.5, { startTime: now + 0.055, duration: 0.2, volume: 0.04, type: "triangle" });
+    return;
+  }
+
+  if (name === "erase" && canPlaySfx(name, 160)) {
+    playFilteredNoise({ startTime: now, duration: 0.16, volume: 0.03, frequency: 520, filterType: "lowpass" });
+    return;
+  }
+
+  if (name === "slide" && canPlaySfx(name, 220)) {
+    scheduleTone(440, { startTime: now, duration: 0.12, volume: 0.04, type: "triangle", endFreq: 392 });
+  }
+}
+
+function initAudioSystem() {
+  audioState.toggleButton = document.querySelector(".audio-toggle");
+  if (!window.AudioContext && !window.webkitAudioContext) {
+    audioState.toggleButton?.setAttribute("hidden", "");
+    return;
+  }
+  updateAudioToggle();
+
+  const unlockFromGesture = (event) => {
+    if (event.type === "keydown" && event.key !== "Enter" && event.key !== " " && event.key !== "Spacebar") return;
+    unlockAudio();
+  };
+
+  document.addEventListener("pointerdown", unlockFromGesture, { passive: true, capture: true });
+  document.addEventListener("touchstart", unlockFromGesture, { passive: true, capture: true });
+  document.addEventListener("keydown", unlockFromGesture, { capture: true });
+
+  document.addEventListener("click", (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    const button = target?.closest("button");
+    if (!button || button.disabled || button.classList.contains("audio-toggle") || button.closest(".audio-toggle")) return;
+    playSfx("tap");
+  }, true);
+
+  audioState.toggleButton?.addEventListener("pointerdown", () => {
+    audioState.toggleStartedAudio = !audioState.unlocked;
+  });
+
+  audioState.toggleButton?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const shouldOnlyStart = audioState.toggleStartedAudio || !audioState.unlocked;
+    audioState.toggleStartedAudio = false;
+    unlockAudio().then((ready) => {
+      if (!ready) return;
+      setAudioMuted(shouldOnlyStart ? false : !audioState.muted);
+      if (!audioState.muted) playSfx("select");
+    });
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    const ctx = audioState.ctx;
+    if (!ctx) return;
+    if (document.hidden) {
+      stopBackgroundMusic();
+      ctx.suspend?.();
+      return;
+    }
+    if (audioState.unlocked && !audioState.muted) {
+      ctx.resume?.().then(() => startBackgroundMusic());
+    }
+  });
+
+  window.FourLeisureAudio = {
+    playSfx,
+    setMuted: setAudioMuted,
+    unlock: unlockAudio,
+    getState: () => ({
+      unlocked: audioState.unlocked,
+      muted: audioState.muted,
+      bgmStarted: audioState.bgmStarted,
+      bgmStep: audioState.bgmStep,
+      contextState: audioState.ctx?.state || "none"
+    })
+  };
+}
+
+const floatingDecorConfig = {
+  themes: ["tea", "flower", "incense", "painting"],
+  ambientThemes: ["tea", "flower"],
+  themeByScene: {
+    5: "tea",
+    6: "tea",
+    8: "incense",
+    11: "flower",
+    14: "painting",
+    15: "painting"
+  },
+  sprites: {
+    tea: Array.from({ length: 6 }, (_, index) => `assets/png/floating/tea-leaf-${index + 1}.png`),
+    flower: Array.from({ length: 8 }, (_, index) => `assets/png/floating/flower-petal-${index + 1}.png`),
+    incense: Array.from({ length: 6 }, (_, index) => `assets/png/floating/incense-smoke-${index + 1}.png`),
+    painting: Array.from({ length: 6 }, (_, index) => `assets/png/floating/painting-wind-${index + 1}.png`)
+  },
+  randomSceneNumber: 0,
+  randomSceneTheme: "",
+  timer: 0
+};
+
+function randomBetween(min, max) {
+  return min + Math.random() * (max - min);
+}
+
+function randomItem(items) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function getActiveSceneNumber() {
+  const activeScene = document.querySelector(".scene.active");
+  const match = activeScene?.id?.match(/^scene-(\d+)$/);
+  return match ? Number(match[1]) : 0;
+}
+
+function getFloatingTheme(sceneNumber) {
+  const fixedTheme = floatingDecorConfig.themeByScene[sceneNumber];
+  if (fixedTheme) return fixedTheme;
+
+  if (floatingDecorConfig.randomSceneNumber !== sceneNumber || !floatingDecorConfig.randomSceneTheme) {
+    floatingDecorConfig.randomSceneNumber = sceneNumber;
+    floatingDecorConfig.randomSceneTheme = randomItem(floatingDecorConfig.ambientThemes);
+  }
+  return floatingDecorConfig.randomSceneTheme;
+}
+
+function getFloatingLayer(scene) {
+  let layer = Array.from(scene.children).find((child) => child.classList.contains("floating-layer"));
+  if (layer) return layer;
+
+  layer = document.createElement("div");
+  layer.className = "floating-layer";
+  layer.setAttribute("aria-hidden", "true");
+  scene.insertBefore(layer, scene.children[1] || null);
+  return layer;
+}
+
+function setFloatingPath(item, theme) {
+  const startFromLeft = Math.random() > 0.5;
+  const baseTop = theme === "flower"
+    ? randomBetween(-8, 70)
+    : theme === "incense"
+      ? randomBetween(18, 82)
+      : randomBetween(0, 78);
+  const driftX = theme === "wind" || theme === "painting" ? randomBetween(52, 86) : randomBetween(36, 72);
+  const driftY = theme === "flower"
+    ? randomBetween(16, 34)
+    : theme === "incense"
+      ? randomBetween(-24, -8)
+      : randomBetween(-14, 22);
+  const startLeft = startFromLeft ? randomBetween(-18, -8) : randomBetween(102, 112);
+  const endLeft = startFromLeft ? startLeft + driftX : startLeft - driftX;
+  const startTop = baseTop;
+  const endTop = Math.max(-18, Math.min(106, baseTop + driftY));
+
+  item.style.setProperty("--float-start-left", `${startLeft.toFixed(2)}%`);
+  item.style.setProperty("--float-start-top", `${startTop.toFixed(2)}%`);
+  item.style.setProperty("--float-end-left", `${endLeft.toFixed(2)}%`);
+  item.style.setProperty("--float-end-top", `${endTop.toFixed(2)}%`);
+  item.style.setProperty("--float-rotate-start", `${randomBetween(-30, 30).toFixed(2)}deg`);
+  item.style.setProperty("--float-rotate-end", `${randomBetween(-95, 95).toFixed(2)}deg`);
+  item.style.setProperty("--float-duration", `${randomBetween(6.4, 10.8).toFixed(2)}s`);
+}
+
+function createFloatingImage(theme) {
+  const image = document.createElement("img");
+  const sprites = floatingDecorConfig.sprites[theme] || floatingDecorConfig.sprites.tea;
+  const isTea = theme === "tea";
+  const isFlower = theme === "flower";
+  const isIncense = theme === "incense";
+  image.className = `floating-item floating-image floating-${theme}`;
+  image.src = randomItem(sprites);
+  image.alt = "";
+  image.decoding = "async";
+  image.loading = "lazy";
+  image.style.setProperty("--float-width", `${randomBetween(
+    isTea ? 6.2 : isFlower ? 4.8 : isIncense ? 7.2 : 10,
+    isTea ? 11.2 : isFlower ? 8.2 : isIncense ? 12.5 : 17
+  ).toFixed(2)}%`);
+  image.style.setProperty("--float-opacity", `${randomBetween(
+    isTea ? 0.3 : isFlower ? 0.34 : isIncense ? 0.18 : 0.16,
+    isTea ? 0.46 : isFlower ? 0.52 : isIncense ? 0.3 : 0.28
+  ).toFixed(2)}`);
+  image.style.setProperty("--float-scale", randomBetween(0.9, isIncense ? 1.18 : 1.28).toFixed(2));
+  setFloatingPath(image, theme);
+  return image;
+}
+
+function createFloatingItem(theme) {
+  return createFloatingImage(theme);
+}
+
+function getFloatingDensity(theme) {
+  if (theme === "incense") {
+    return { maxItems: 5, skipChance: 0.48 };
+  }
+  if (theme === "painting") {
+    return { maxItems: 4, skipChance: 0.56 };
+  }
+  return { maxItems: 18, skipChance: 0.03 };
+}
+
+function spawnFloatingDecor() {
+  if (reduceMotionQuery.matches || document.hidden || document.body.classList.contains("static-check")) return;
+  const scene = document.querySelector(".scene.active");
+  if (!scene) return;
+
+  document.querySelectorAll(".scene:not(.active) > .floating-layer").forEach((layer) => layer.replaceChildren());
+
+  const layer = getFloatingLayer(scene);
+  const sceneNumber = getActiveSceneNumber();
+  const theme = getFloatingTheme(sceneNumber);
+  const density = getFloatingDensity(theme);
+  if (layer.children.length >= density.maxItems || Math.random() < density.skipChance) return;
+
+  const item = createFloatingItem(theme);
+  item.addEventListener("animationend", () => item.remove(), { once: true });
+  layer.appendChild(item);
+}
+
+function initFloatingDecor() {
+  if (floatingDecorConfig.timer) return;
+  floatingDecorConfig.timer = window.setInterval(spawnFloatingDecor, 520);
+  window.setTimeout(spawnFloatingDecor, 180);
+}
+
 function isAllChaptersComplete() {
   return Object.values(state.completed).every(Boolean);
 }
@@ -270,10 +808,11 @@ function buildScene9EntranceTimeline(scene, { paused = false } = {}) {
   if (copy) gsap.set(copy, { y: 18 });
   if (seal) gsap.set(seal, { y: 18, scale: 0.92, transformOrigin: "50% 50%" });
   if (gainText) gsap.set(gainText, { y: 12 });
-  if (back) gsap.set(back, { y: 16 });
+  if (back) gsap.set(back, { y: 16, pointerEvents: "none" });
 
   if (reduceMotionQuery.matches) {
     gsap.set(layers, { autoAlpha: 1, y: 0, scale: 1, clearProps: "visibility,transform" });
+    if (back) gsap.set(back, { pointerEvents: "auto" });
     return gsap.timeline({ paused });
   }
 
@@ -352,6 +891,9 @@ function buildScene9EntranceTimeline(scene, { paused = false } = {}) {
       autoAlpha: 1,
       y: 0,
       duration: 0.58,
+      onStart: () => {
+        back.style.pointerEvents = "auto";
+      },
       clearProps: "visibility"
     }, 1.66);
   }
@@ -506,7 +1048,12 @@ function showScene(sceneNumber) {
 
   if (!next || current === next) return;
 
+  playSfx("page");
   state.currentScene = sceneNumber;
+  if (!floatingDecorConfig.themeByScene[sceneNumber]) {
+    floatingDecorConfig.randomSceneNumber = 0;
+    floatingDecorConfig.randomSceneTheme = "";
+  }
   if (sceneNumber === 3) {
     updateChapterCards();
   }
@@ -637,7 +1184,11 @@ function updateChapterCards() {
 
 function completeChapter(type) {
   if (state.completed[type] !== undefined) {
+    const wasCompleted = state.completed[type];
     state.completed[type] = true;
+    if (!wasCompleted) {
+      playSfx("complete");
+    }
     updateChapterCards();
   }
 }
@@ -745,6 +1296,7 @@ function initIncenseInteraction() {
   function startHold(event) {
     if (isComplete) return;
     event.preventDefault();
+    playSfx("incense");
     isHolding = true;
     holdStart = performance.now();
     scene.classList.add("is-holding");
@@ -1012,7 +1564,12 @@ function initScene3() {
   };
 
   const setCurrent = (index, animate = true) => {
-    currentIndex = wrapIndex(index);
+    const nextIndex = wrapIndex(index);
+    const changed = nextIndex !== currentIndex;
+    currentIndex = nextIndex;
+    if (changed && animate) {
+      playSfx("slide");
+    }
     renderCarousel(animate);
   };
 
@@ -1304,6 +1861,7 @@ function initScene5() {
     progress = Math.min(100, (accumulatedAngle / completeAngle) * 100);
 
     cupZone.classList.add("is-whisking");
+    playSfx("whisk");
     window.clearTimeout(settleTimer);
     settleTimer = window.setTimeout(() => cupZone.classList.remove("is-whisking"), 180);
 
@@ -1350,6 +1908,7 @@ function initScene5() {
   hitArea.addEventListener("keydown", (event) => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight" && event.key !== " ") return;
     event.preventDefault();
+    playSfx("whisk");
     accumulatedAngle = Math.min(completeAngle, accumulatedAngle + Math.PI / 2);
     progress = Math.min(100, (accumulatedAngle / completeAngle) * 100);
     renderTeaProgress();
@@ -1494,6 +2053,7 @@ function initScene6() {
     }
 
     ctx.restore();
+    playSfx("draw");
     pathLength += distance / dpr;
     points += 1;
     state.teaArt.pathLength = pathLength;
@@ -1509,6 +2069,7 @@ function initScene6() {
   };
 
   const clearDrawing = () => {
+    playSfx("erase");
     setupCanvas(false);
     ctx?.clearRect(0, 0, canvas.width, canvas.height);
     pathLength = 0;
@@ -1531,6 +2092,7 @@ function initScene6() {
     lastPoint = point;
     points += 1;
     drawFoamDot(point, 0.38);
+    playSfx("draw");
     canvas.setPointerCapture?.(event.pointerId);
     updateDoneState();
     event.preventDefault();
@@ -1570,6 +2132,7 @@ function initScene6() {
 
   cards.forEach((card) => {
     card.addEventListener("click", () => {
+      playSfx("select");
       cards.forEach((item) => item.classList.toggle("is-active", item === card));
       if (tip) {
         tip.textContent = tips[card.dataset.pattern] || "提示：在茶沫表面轻轻划动，绘出你心中的图案";
@@ -2047,6 +2610,7 @@ function initScene11() {
 
     selectedFlowers.push(type);
     selected = new Set(selectedFlowers);
+    playSfx("drop");
 
     const sourceCard = card || cards.find((item) => item.dataset.flower === type);
     const insertClone = clone || makeDragClone(type, sourceCard);
@@ -2068,6 +2632,7 @@ function initScene11() {
     const type = card.dataset.flower;
     if (selected.has(type) || selectedFlowers.length >= maxChoice) return;
     event.preventDefault();
+    playSfx("flower");
 
     const clone = makeDragClone(type, card);
     activeDrag = {
@@ -2118,6 +2683,7 @@ function initScene11() {
       return;
     }
 
+    playSfx("slide");
     returnCloneToCard(drag.clone, drag.card);
   }
 
@@ -2261,6 +2827,7 @@ function initScene14() {
 
   const addDragProgress = (deltaY) => {
     if (deltaY <= 0 || progress >= 100) return;
+    playSfx("scroll");
     renderProgress(progress + (deltaY / maxDragDistance) * 100);
   };
 
@@ -2378,6 +2945,7 @@ function initScene15() {
   const markFound = (target) => {
     if (!targets.includes(target) || found.has(target)) return;
     found.add(target);
+    playSfx("found");
     const hotspot = hotspots.find((item) => item.dataset.target === target);
     hotspot?.classList.add("is-tapped");
     window.setTimeout(() => hotspot?.classList.remove("is-tapped"), 520);
@@ -2444,6 +3012,8 @@ function initScene18() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initMobileViewport();
+  initAudioSystem();
+  initFloatingDecor();
 
   if (window.gsap) {
     document.body.classList.add("gsap-ready");

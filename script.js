@@ -808,7 +808,7 @@ function buildScene9EntranceTimeline(scene, { paused = false } = {}) {
   if (copy) gsap.set(copy, { y: 18 });
   if (seal) gsap.set(seal, { y: 18, scale: 0.92, transformOrigin: "50% 50%" });
   if (gainText) gsap.set(gainText, { y: 12 });
-  if (back) gsap.set(back, { y: 16, pointerEvents: "none" });
+  if (back) gsap.set(back, { y: 16, pointerEvents: "auto", visibility: "visible" });
 
   if (reduceMotionQuery.matches) {
     gsap.set(layers, { autoAlpha: 1, y: 0, scale: 1, clearProps: "visibility,transform" });

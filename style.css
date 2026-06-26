@@ -858,10 +858,6 @@ body.gsap-ready .scene-3.active .scene3-layer:not(.scene3-swipe-hand) {
   display: block;
 }
 
-.scene3-seal[data-type="flower"].is-completed .scene3-seal-done {
-  clip-path: inset(0 0 18% 0);
-}
-
 .scene3-seal.is-active {
   opacity: 1;
   filter: grayscale(0) drop-shadow(0 8px 10px rgba(76, 59, 37, 0.18));
@@ -962,6 +958,20 @@ body.static-check .scene3-layer {
   object-position: center center;
   pointer-events: none;
   user-select: none;
+}
+
+.scene-5::before {
+  content: "";
+  position: absolute;
+  left: calc(108 / var(--design-w) * 100%);
+  top: calc(1354 / var(--design-h) * 100%);
+  width: calc(646 / var(--design-w) * 100%);
+  height: calc(70 / var(--design-h) * 100%);
+  z-index: 1;
+  border-radius: 999px;
+  background: rgba(238, 224, 194, 0.96);
+  filter: blur(10px);
+  pointer-events: none;
 }
 
 .scene-5::after {
@@ -2625,14 +2635,14 @@ body.gsap-ready .scene-9.active .scene9-layer {
 
 .scene9-divider-cleaner {
   position: absolute;
-  left: calc(92 / var(--design-w) * 100%);
-  top: calc(396 / var(--design-h) * 100%);
-  width: calc(668 / var(--design-w) * 100%);
-  height: calc(136 / var(--design-h) * 100%);
-  z-index: 1;
+  left: calc(64 / var(--design-w) * 100%);
+  top: calc(392 / var(--design-h) * 100%);
+  width: calc(724 / var(--design-w) * 100%);
+  height: calc(186 / var(--design-h) * 100%);
+  z-index: 3;
   border-radius: 999px;
-  background: rgba(240, 226, 201, 0.98);
-  filter: blur(18px);
+  background: rgba(239, 224, 198, 0.99);
+  filter: blur(22px);
   pointer-events: none;
 }
 
@@ -2776,23 +2786,29 @@ body.gsap-ready .scene-9.active .scene9-layer {
 }
 
 .scene9-back {
-  left: calc(188 / var(--design-w) * 100%);
-  top: calc(1680 / var(--design-h) * 100%);
-  width: calc(478 / var(--design-w) * 100%);
-  height: auto;
-  z-index: 20;
+  left: calc(148 / var(--design-w) * 100%);
+  top: calc(1648 / var(--design-h) * 100%);
+  width: calc(558 / var(--design-w) * 100%);
+  height: calc(164 / var(--design-h) * 100%);
+  z-index: 80;
   cursor: pointer;
   background: transparent;
   border: 0;
   display: block;
   overflow: visible;
   padding: 0;
+  border-radius: 999px;
+  touch-action: manipulation;
 }
 
 .scene9-back img {
   display: block;
-  width: 100%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(478 / 558 * 100%);
   height: auto;
+  transform: translate(-50%, -50%);
   pointer-events: none;
   user-select: none;
 }
@@ -3808,13 +3824,14 @@ body.gsap-ready .scene-12.active .scene12-layer {
 }
 
 .scene12-back {
-  left: calc(186 / var(--design-w) * 100%);
-  top: calc(1596 / var(--design-h) * 100%);
-  width: calc(486 / var(--design-w) * 100%);
-  height: calc(124 / var(--design-h) * 100%);
-  z-index: 5;
-  overflow: hidden;
+  left: calc(146 / var(--design-w) * 100%);
+  top: calc(1570 / var(--design-h) * 100%);
+  width: calc(566 / var(--design-w) * 100%);
+  height: calc(174 / var(--design-h) * 100%);
+  z-index: 80;
+  overflow: visible;
   border-radius: 999px;
+  background: transparent;
   touch-action: manipulation;
   animation-delay: 0.48s;
   transition: transform 160ms ease, filter 160ms ease;
@@ -4006,7 +4023,7 @@ body.gsap-ready .scene-14.active .scene14-layer {
   width: calc(617 / var(--design-w) * 100%);
   color: #342d25;
   font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
-  font-size: clamp(28px, 2.45rem, 39px);
+  font-size: calc(50 / var(--design-w) * var(--stage-width));
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0.08em;
@@ -4215,7 +4232,7 @@ body.gsap-ready .scene-14.active .scene14-layer {
   width: calc(306 / var(--design-w) * 100%);
   color: #393027;
   font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
-  font-size: clamp(20px, calc(32 / var(--design-w) * 100vw), 32px);
+  font-size: calc(40 / var(--design-w) * var(--stage-width));
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.12em;

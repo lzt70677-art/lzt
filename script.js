@@ -46,7 +46,8 @@ const audioState = {
   lastSfxAt: Object.create(null),
   toggleButton: null,
   toggleStartedAudio: false,
-  primed: false
+  primed: false,
+  lastToggleAt: 0
 };
 
 const bgmPattern = [
@@ -80,8 +81,8 @@ function getAudioContext() {
   const musicFilter = ctx.createBiquadFilter();
 
   masterGain.gain.value = audioState.muted ? 0 : 1;
-  musicGain.gain.value = 0.32;
-  sfxGain.gain.value = 0.5;
+  musicGain.gain.value = 0.72;
+  sfxGain.gain.value = 0.9;
   musicFilter.type = "lowpass";
   musicFilter.frequency.value = 2200;
   musicFilter.Q.value = 0.7;
@@ -114,26 +115,36 @@ function updateAudioToggle() {
   }
 }
 
-function primeAudioOutput() {
+function primeAudioOutput(options = {}) {
   const ctx = getAudioContext();
-  if (!ctx || !audioState.masterGain || audioState.primed) return;
+  if (!ctx || !audioState.masterGain || (audioState.primed && !options.force)) return;
 
   try {
     const now = ctx.currentTime;
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
     oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(220, now);
-    gainNode.gain.setValueAtTime(0.0001, now);
-    gainNode.gain.exponentialRampToValueAtTime(0.00001, now + 0.04);
+    oscillator.frequency.setValueAtTime(options.frequency || 220, now);
+    gainNode.gain.setValueAtTime(options.volume || 0.001, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
     oscillator.connect(gainNode);
     gainNode.connect(audioState.masterGain);
     oscillator.start(now);
-    oscillator.stop(now + 0.05);
-    audioState.primed = true;
+    oscillator.stop(now + 0.1);
+    if (ctx.state === "running") {
+      audioState.primed = true;
+    }
   } catch (error) {
     audioState.primed = false;
   }
+}
+
+function playAudioStartCue() {
+  const ctx = getAudioContext();
+  if (!ctx || ctx.state !== "running" || audioState.muted) return;
+  const now = ctx.currentTime;
+  scheduleTone(659.25, { startTime: now, duration: 0.18, volume: 0.13, type: "sine" });
+  scheduleTone(987.77, { startTime: now + 0.055, duration: 0.24, volume: 0.1, type: "triangle" });
 }
 
 function scheduleTone(freq, options = {}) {
@@ -216,7 +227,7 @@ function scheduleBgmStep(startTime) {
     startTime,
     duration: item.duration,
     attack: 0.075,
-    volume: item.gain,
+    volume: item.gain * 1.75,
     type: "sine",
     destination: audioState.musicGain
   });
@@ -224,7 +235,7 @@ function scheduleBgmStep(startTime) {
     startTime: startTime + 0.015,
     duration: item.duration * 0.62,
     attack: 0.035,
-    volume: item.gain * 0.24,
+    volume: item.gain * 0.45,
     type: "triangle",
     destination: audioState.musicGain
   });
@@ -234,7 +245,7 @@ function scheduleBgmStep(startTime) {
       startTime,
       duration: 4.2,
       attack: 0.18,
-      volume: 0.032,
+      volume: 0.06,
       type: "sine",
       destination: audioState.musicGain
     });
@@ -281,24 +292,29 @@ function setAudioMuted(muted) {
   updateAudioToggle();
 }
 
-async function unlockAudio() {
+async function unlockAudio(options = {}) {
   const ctx = getAudioContext();
   if (!ctx) return false;
 
-  primeAudioOutput();
+  primeAudioOutput({ force: true, volume: options.audible ? 0.012 : 0.001 });
 
   try {
     if (ctx.state === "suspended") {
-      await ctx.resume();
+      const resumePromise = ctx.resume();
+      primeAudioOutput({ force: true, volume: options.audible ? 0.018 : 0.001 });
+      await resumePromise;
     }
   } catch (error) {
     return false;
   }
 
-  primeAudioOutput();
+  primeAudioOutput({ force: true, volume: options.audible ? 0.018 : 0.001 });
   audioState.unlocked = ctx.state === "running";
   if (audioState.unlocked && !audioState.muted) {
     startBackgroundMusic();
+    if (options.audible) {
+      playAudioStartCue();
+    }
   }
   updateAudioToggle();
   return audioState.unlocked;
@@ -413,16 +429,26 @@ function initAudioSystem() {
     audioState.toggleStartedAudio = !audioState.unlocked;
   });
 
-  audioState.toggleButton?.addEventListener("click", (event) => {
+  const activateAudioToggle = (event) => {
+    event.preventDefault?.();
     event.stopPropagation();
+    const now = performance.now();
+    if (now - audioState.lastToggleAt < 260) return;
+    audioState.lastToggleAt = now;
     const shouldOnlyStart = audioState.toggleStartedAudio || !audioState.unlocked;
     audioState.toggleStartedAudio = false;
-    unlockAudio().then((ready) => {
+    unlockAudio({ audible: true }).then((ready) => {
       if (!ready) return;
       setAudioMuted(shouldOnlyStart ? false : !audioState.muted);
-      if (!audioState.muted) playSfx("select");
+      if (!audioState.muted) {
+        playSfx("select");
+        startBackgroundMusic();
+      }
     });
-  });
+  };
+
+  audioState.toggleButton?.addEventListener("touchend", activateAudioToggle, { passive: false });
+  audioState.toggleButton?.addEventListener("click", activateAudioToggle);
 
   document.addEventListener("visibilitychange", () => {
     const ctx = audioState.ctx;

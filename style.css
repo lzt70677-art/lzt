@@ -2633,6 +2633,23 @@ body.gsap-ready .scene-9.active .scene9-layer {
   user-select: none;
 }
 
+.scene9-lower-line-cleaner {
+  position: absolute;
+  left: 0;
+  top: calc(414 / var(--design-h) * 100%);
+  width: 100%;
+  height: calc(84 / var(--design-h) * 100%);
+  z-index: 3;
+  background: linear-gradient(
+    180deg,
+    rgba(233, 205, 171, 0),
+    rgba(233, 205, 171, 0.96) 34%,
+    rgba(233, 205, 171, 0.96) 66%,
+    rgba(233, 205, 171, 0)
+  );
+  pointer-events: none;
+}
+
 .scene9-title {
   left: calc(198 / var(--design-w) * 100%);
   top: calc(138 / var(--design-h) * 100%);

@@ -1748,16 +1748,17 @@ body.gsap-ready .scene-18.active .scene18-layer {
 }
 
 .scene18-subtitle {
-  left: calc(176 / var(--design-w) * 100%);
+  left: calc(126 / var(--design-w) * 100%);
   top: calc(335 / var(--design-h) * 100%);
-  width: calc(500 / var(--design-w) * 100%);
+  width: calc(600 / var(--design-w) * 100%);
   color: #231d17;
   font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
-  font-size: clamp(19px, 3.25vw, 30px);
+  font-size: clamp(18px, 3vw, 28px);
   font-weight: 700;
   line-height: 1.2;
   text-align: center;
   letter-spacing: 0.14em;
+  white-space: nowrap;
   pointer-events: none;
   user-select: none;
   animation-delay: 0.16s;

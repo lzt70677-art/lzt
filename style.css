@@ -2633,19 +2633,6 @@ body.gsap-ready .scene-9.active .scene9-layer {
   user-select: none;
 }
 
-.scene9-divider-cleaner {
-  position: absolute;
-  left: calc(64 / var(--design-w) * 100%);
-  top: calc(392 / var(--design-h) * 100%);
-  width: calc(724 / var(--design-w) * 100%);
-  height: calc(186 / var(--design-h) * 100%);
-  z-index: 3;
-  border-radius: 999px;
-  background: rgba(239, 224, 198, 0.99);
-  filter: blur(22px);
-  pointer-events: none;
-}
-
 .scene9-title {
   left: calc(198 / var(--design-w) * 100%);
   top: calc(138 / var(--design-h) * 100%);

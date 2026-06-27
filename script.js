@@ -28,6 +28,8 @@ const qinghuanResultImages = [
   "assets/scene19/qinghuan-3.jpg"
 ];
 
+let activeSceneTransition = null;
+
 const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 const audioState = {
@@ -43,7 +45,8 @@ const audioState = {
   bgmStep: 0,
   lastSfxAt: Object.create(null),
   toggleButton: null,
-  toggleStartedAudio: false
+  toggleStartedAudio: false,
+  primed: false
 };
 
 const bgmPattern = [
@@ -108,6 +111,28 @@ function updateAudioToggle() {
   const mark = button.querySelector(".audio-toggle-mark");
   if (mark) {
     mark.textContent = audioState.muted ? "\u9759" : "\u97f3";
+  }
+}
+
+function primeAudioOutput() {
+  const ctx = getAudioContext();
+  if (!ctx || !audioState.masterGain || audioState.primed) return;
+
+  try {
+    const now = ctx.currentTime;
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(220, now);
+    gainNode.gain.setValueAtTime(0.0001, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.00001, now + 0.04);
+    oscillator.connect(gainNode);
+    gainNode.connect(audioState.masterGain);
+    oscillator.start(now);
+    oscillator.stop(now + 0.05);
+    audioState.primed = true;
+  } catch (error) {
+    audioState.primed = false;
   }
 }
 
@@ -260,6 +285,8 @@ async function unlockAudio() {
   const ctx = getAudioContext();
   if (!ctx) return false;
 
+  primeAudioOutput();
+
   try {
     if (ctx.state === "suspended") {
       await ctx.resume();
@@ -268,7 +295,8 @@ async function unlockAudio() {
     return false;
   }
 
-  audioState.unlocked = ctx.state !== "suspended";
+  primeAudioOutput();
+  audioState.unlocked = ctx.state === "running";
   if (audioState.unlocked && !audioState.muted) {
     startBackgroundMusic();
   }
@@ -370,6 +398,8 @@ function initAudioSystem() {
 
   document.addEventListener("pointerdown", unlockFromGesture, { passive: true, capture: true });
   document.addEventListener("touchstart", unlockFromGesture, { passive: true, capture: true });
+  document.addEventListener("touchend", unlockFromGesture, { passive: true, capture: true });
+  document.addEventListener("click", unlockFromGesture, { passive: true, capture: true });
   document.addEventListener("keydown", unlockFromGesture, { capture: true });
 
   document.addEventListener("click", (event) => {
@@ -1042,11 +1072,60 @@ function refreshScene3Carousel(animate = false) {
   }
 }
 
-function showScene(sceneNumber) {
-  const current = document.querySelector(".scene.active");
-  const next = document.querySelector(`#scene-${sceneNumber}`);
+function clearSceneTransitionStyles(scene) {
+  if (!scene) return;
+  scene.style.removeProperty("visibility");
+  scene.style.removeProperty("opacity");
+  scene.style.removeProperty("z-index");
+  scene.style.removeProperty("transform");
+}
 
-  if (!next || current === next) return;
+function finishSceneTransition(current, next, sceneNumber, options = {}) {
+  const shouldPlayEntrance = options.playEntrance !== false;
+  if (current && current !== next) {
+    current.classList.remove("active");
+    clearSceneTransitionStyles(current);
+  }
+  clearSceneTransitionStyles(next);
+  activeSceneTransition = null;
+  if (sceneNumber === 3) {
+    refreshScene3Carousel(false);
+  }
+  if (shouldPlayEntrance) {
+    playSceneEntrance(sceneNumber, next);
+  }
+}
+
+function prepareSceneTransition(current, next) {
+  if (activeSceneTransition) {
+    activeSceneTransition.kill();
+    activeSceneTransition = null;
+  }
+
+  document.querySelectorAll(".scene.active").forEach((scene) => {
+    if (scene !== current) {
+      scene.classList.remove("active");
+    }
+    clearSceneTransitionStyles(scene);
+  });
+
+  if (current) {
+    current.classList.add("active");
+    clearSceneTransitionStyles(current);
+  }
+  clearSceneTransitionStyles(next);
+}
+
+function showScene(sceneNumber) {
+  const next = document.querySelector(`#scene-${sceneNumber}`);
+  const current = document.querySelector(`#scene-${state.currentScene}`) || document.querySelector(".scene.active");
+
+  if (!next) return;
+  if (current === next) {
+    prepareSceneTransition(current, next);
+    return;
+  }
+  prepareSceneTransition(current, next);
 
   playSfx("page");
   state.currentScene = sceneNumber;
@@ -1072,16 +1151,10 @@ function showScene(sceneNumber) {
       const scene9Timeline = buildScene9EntranceTimeline(next, { paused: true });
       const scene9Hold = { progress: 0 };
 
-      gsap.timeline({
+      activeSceneTransition = gsap.timeline({
         defaults: { ease: "power2.out" },
         onComplete: () => {
-          current.classList.remove("active");
-          current.style.removeProperty("visibility");
-          current.style.removeProperty("opacity");
-          current.style.removeProperty("z-index");
-          next.style.removeProperty("visibility");
-          next.style.removeProperty("opacity");
-          next.style.removeProperty("z-index");
+          finishSceneTransition(current, next, sceneNumber, { playEntrance: false });
         }
       })
         .to(current, { autoAlpha: 0, duration: 0.48, ease: "power1.out" }, 0)
@@ -1100,16 +1173,10 @@ function showScene(sceneNumber) {
       const scene10Timeline = buildScene10EntranceTimeline(next, { paused: true });
       const scene10Hold = { progress: 0 };
 
-      gsap.timeline({
+      activeSceneTransition = gsap.timeline({
         defaults: { ease: "power2.out" },
         onComplete: () => {
-          current.classList.remove("active");
-          current.style.removeProperty("visibility");
-          current.style.removeProperty("opacity");
-          current.style.removeProperty("z-index");
-          next.style.removeProperty("visibility");
-          next.style.removeProperty("opacity");
-          next.style.removeProperty("z-index");
+          finishSceneTransition(current, next, sceneNumber, { playEntrance: false });
         }
       })
         .to(current, { autoAlpha: 0, y: -18, duration: 0.5 }, 0)
@@ -1126,22 +1193,10 @@ function showScene(sceneNumber) {
     }
     gsap.set(next, { autoAlpha: 0, zIndex: 3 });
     gsap.set(current, { zIndex: 2 });
-    gsap.timeline({
+    activeSceneTransition = gsap.timeline({
       defaults: { ease: "power2.out" },
       onComplete: () => {
-        current.classList.remove("active");
-        current.style.removeProperty("visibility");
-        current.style.removeProperty("opacity");
-        current.style.removeProperty("z-index");
-        next.style.removeProperty("visibility");
-        next.style.removeProperty("opacity");
-        next.style.removeProperty("z-index");
-        if (sceneNumber === 3) {
-          refreshScene3Carousel(false);
-        }
-        if (sceneNumber !== 10) {
-          playSceneEntrance(sceneNumber, next);
-        }
+        finishSceneTransition(current, next, sceneNumber);
       }
     })
       .to(current, { autoAlpha: 0, y: sceneNumber === 9 ? -8 : -18, duration: sceneNumber === 9 ? 0.62 : 0.5 }, 0)
